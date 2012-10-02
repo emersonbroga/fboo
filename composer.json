@@ -1,0 +1,6 @@
+{
+    "name" : "jeanpimentel/fboo",
+    "autoload": {
+        "psr-0": { "fboo": "library/" }
+    }
+}
