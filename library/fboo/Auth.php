@@ -54,7 +54,10 @@ class Auth
             'scope' => implode(',', func_get_args()),
         );
 
-        return new Browser\Redirect(sprintf('%s?%s', self::URL_AUTH, http_build_query($args)));
+        return (object) array(
+            'method' => 'get',
+            'url' => sprintf('%s?%s', self::URL_AUTH, http_build_query($args))
+        );
     }
 
     public function authenticate($code)
@@ -69,10 +72,10 @@ class Auth
             'code' => $code,
         );
 
-        $request = new Browser\Request();
-        return $request
-                        ->setMethod('GET')
-                        ->setUrl(sprintf('%s?%s', self::URL_TOKEN, http_build_query($args)));
+        return (object) array(
+            'method' => 'get',
+            'url' => sprintf('%s?%s', self::URL_TOKEN, http_build_query($args))
+        );
     }
 
     public function getPermissions($token)
@@ -84,10 +87,10 @@ class Auth
             'access_token' => $token,
         );
 
-        $request = new Browser\Request();
-        return $request
-                        ->setMethod('GET')
-                        ->setUrl(sprintf('%s?%s', self::URL_PERMISSIONS, http_build_query($args)));
+        return (object) array(
+            'method' => 'get',
+            'url' => sprintf('%s?%s', self::URL_PERMISSIONS, http_build_query($args))
+        );
     }
 
 }

@@ -55,15 +55,22 @@ class AuthTest extends \PHPUnit_Framework_TestCase
         $auth = new Auth('0123456789', '0123456789abcdef');
         $auth->setCallbackUrl('http://localhost/callback');
 
-        $redirect = $auth->authorize();
+        $toRequest = $auth->authorize();
         $url = Auth::URL_AUTH . '?client_id=0123456789&redirect_uri=http%3A%2F%2Flocalhost%2Fcallback&scope=';
-        $this->assertInstanceOf('fboo\Browser\Redirect', $redirect);
-        $this->assertEquals($url, $redirect->getUrl());
+        $this->assertInstanceOf('\stdClass', $toRequest);
+        $this->assertObjectHasAttribute('method', $toRequest);
+        $this->assertObjectHasAttribute('url', $toRequest);
+        $this->assertEquals('get', $toRequest->method);
+        $this->assertEquals($url, $toRequest->url);
 
-        $redirect = $auth->authorize('email', 'user_about_me');
+        $toRequest = $auth->authorize('email', 'user_about_me');
         $url = Auth::URL_AUTH . '?client_id=0123456789&redirect_uri=http%3A%2F%2Flocalhost%2Fcallback&scope=email%2Cuser_about_me';
-        $this->assertInstanceOf('fboo\Browser\Redirect', $redirect);
-        $this->assertEquals($url, $redirect->getUrl());
+        $this->assertInstanceOf('\stdClass', $toRequest);
+        $this->assertObjectHasAttribute('method', $toRequest);
+        $this->assertObjectHasAttribute('url', $toRequest);
+        $this->assertEquals('get', $toRequest->method);
+        $this->assertEquals($url, $toRequest->url);
+
     }
 
     /**
@@ -78,10 +85,13 @@ class AuthTest extends \PHPUnit_Framework_TestCase
     public function testAuthenticate()
     {
         $auth = new Auth('0123456789', '0123456789abcdef');
-        $request = $auth->authenticate('abcdefghijklmnopqrstuvwxyz');
+        $toRequest = $auth->authenticate('abcdefghijklmnopqrstuvwxyz');
         $url = Auth::URL_TOKEN . '?client_id=0123456789&client_secret=0123456789abcdef&code=abcdefghijklmnopqrstuvwxyz';
-        $this->assertInstanceOf('fboo\Browser\Request', $request);
-        $this->assertEquals($url, $request->getUrl());
+        $this->assertInstanceOf('\stdClass', $toRequest);
+        $this->assertObjectHasAttribute('method', $toRequest);
+        $this->assertObjectHasAttribute('url', $toRequest);
+        $this->assertEquals('get', $toRequest->method);
+        $this->assertEquals($url, $toRequest->url);
     }
 
     /**
@@ -96,10 +106,13 @@ class AuthTest extends \PHPUnit_Framework_TestCase
     public function testGetPermissions()
     {
         $auth = new Auth('0123456789', '0123456789abcdef');
-        $request = $auth->getPermissions('a1b2c3d4e5f6g7h8i9j1k2l3m4n5o6p7q8r9s1t2u3v4w6x7y8z');
+        $toRequest = $auth->getPermissions('a1b2c3d4e5f6g7h8i9j1k2l3m4n5o6p7q8r9s1t2u3v4w6x7y8z');
         $url = Auth::URL_PERMISSIONS . '?access_token=a1b2c3d4e5f6g7h8i9j1k2l3m4n5o6p7q8r9s1t2u3v4w6x7y8z';
-        $this->assertInstanceOf('fboo\Browser\Request', $request);
-        $this->assertEquals($url, $request->getUrl());
+        $this->assertInstanceOf('\stdClass', $toRequest);
+        $this->assertObjectHasAttribute('method', $toRequest);
+        $this->assertObjectHasAttribute('url', $toRequest);
+        $this->assertEquals('get', $toRequest->method);
+        $this->assertEquals($url, $toRequest->url);
     }
 
     public function providerForTestConstructor()
