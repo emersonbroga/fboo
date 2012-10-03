@@ -23,6 +23,85 @@ class AuthTest extends \PHPUnit_Framework_TestCase
         new Auth($id, $secret);
     }
 
+    /**
+     * @dataProvider providerForTestSetCallbackUrl
+     * @expectedException InvalidArgumentException
+     */
+    public function testSetCallbackUrl($url)
+    {
+        $auth = new Auth('0123456789', '0123456789abcdef');
+        $auth->setCallbackUrl($url);
+    }
+
+    public function testSetGetCallbackUrl()
+    {
+        $auth = new Auth('0123456789', '0123456789abcdef');
+
+        $this->assertEquals($auth, $auth->setCallbackUrl('http://localhost/callback'));
+        $this->assertEquals('http://localhost/callback', $auth->getCallbackUrl());
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testAuthorizeWithoutSetCallbackUrl()
+    {
+        $auth = new Auth('0123456789', '0123456789abcdef');
+        $auth->authorize();
+    }
+
+    public function testAuthorize()
+    {
+        $auth = new Auth('0123456789', '0123456789abcdef');
+        $auth->setCallbackUrl('http://localhost/callback');
+
+        $redirect = $auth->authorize();
+        $url = Auth::URL_AUTH . '?client_id=0123456789&redirect_uri=http%3A%2F%2Flocalhost%2Fcallback&scope=';
+        $this->assertInstanceOf('fboo\Browser\Redirect', $redirect);
+        $this->assertEquals($url, $redirect->getUrl());
+
+        $redirect = $auth->authorize('email', 'user_about_me');
+        $url = Auth::URL_AUTH . '?client_id=0123456789&redirect_uri=http%3A%2F%2Flocalhost%2Fcallback&scope=email%2Cuser_about_me';
+        $this->assertInstanceOf('fboo\Browser\Redirect', $redirect);
+        $this->assertEquals($url, $redirect->getUrl());
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testAuthenticateWithoutSetCode()
+    {
+        $auth = new Auth('0123456789', '0123456789abcdef');
+        $auth->authenticate('');
+    }
+
+    public function testAuthenticate()
+    {
+        $auth = new Auth('0123456789', '0123456789abcdef');
+        $request = $auth->authenticate('abcdefghijklmnopqrstuvwxyz');
+        $url = Auth::URL_TOKEN . '?client_id=0123456789&client_secret=0123456789abcdef&code=abcdefghijklmnopqrstuvwxyz';
+        $this->assertInstanceOf('fboo\Browser\Request', $request);
+        $this->assertEquals($url, $request->getUrl());
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testGetPermissionsWithoutSetToken()
+    {
+        $auth = new Auth('0123456789', '0123456789abcdef');
+        $auth->getPermissions('');
+    }
+
+    public function testGetPermissions()
+    {
+        $auth = new Auth('0123456789', '0123456789abcdef');
+        $request = $auth->getPermissions('a1b2c3d4e5f6g7h8i9j1k2l3m4n5o6p7q8r9s1t2u3v4w6x7y8z');
+        $url = Auth::URL_PERMISSIONS . '?access_token=a1b2c3d4e5f6g7h8i9j1k2l3m4n5o6p7q8r9s1t2u3v4w6x7y8z';
+        $this->assertInstanceOf('fboo\Browser\Request', $request);
+        $this->assertEquals($url, $request->getUrl());
+    }
+
     public function providerForTestConstructor()
     {
         return array(
@@ -47,4 +126,16 @@ class AuthTest extends \PHPUnit_Framework_TestCase
             array(false, false),
         );
     }
+
+    public function providerForTestSetCallbackUrl()
+    {
+        return array(
+            array(''),
+            array(null),
+            array(array()),
+            array(true),
+            array(false),
+        );
+    }
+
 }

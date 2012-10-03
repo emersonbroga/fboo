@@ -5,8 +5,9 @@ namespace fboo;
 class Auth
 {
 
-    const AUTH_URL = 'https://graph.facebook.com/oauth/authorize';
-    const TOKEN_URL = 'https://graph.facebook.com/oauth/access_token';
+    const URL_AUTH = 'https://graph.facebook.com/oauth/authorize';
+    const URL_TOKEN = 'https://graph.facebook.com/oauth/access_token';
+    const URL_PERMISSIONS = 'https://graph.facebook.com/me/permissions';
 
     private $appId, $appSecret, $callbackUrl;
 
@@ -30,21 +31,30 @@ class Auth
 
     public function setCallbackUrl($url)
     {
+        if(empty($url) || !is_scalar($url) || strlen($url) < 3)
+            throw new \InvalidArgumentException('You must provide a valid Callback URL');
+
         $this->callbackUrl = $url;
+        return $this;
     }
 
-    public function authorize($scope)
+    public function getCallbackUrl()
+    {
+        return $this->callbackUrl;
+    }
+
+    public function authorize()
     {
         if(!$this->callbackUrl)
-            throw new BadMethodCallException('You must provide callbackUrl');
+            throw new \InvalidArgumentException('You must provide a valid Callback URL');
 
         $args = array(
             'client_id' => $this->appId,
             'redirect_uri' => $this->callbackUrl,
-            'scope' => $scope,
+            'scope' => implode(',', func_get_args()),
         );
 
-        header('Location: ' . sprintf('%s?%s', self::AUTH_URL, http_build_query($args)));
+        return new Browser\Redirect(sprintf('%s?%s', self::URL_AUTH, http_build_query($args)));
     }
 
     public function authenticate($code)
@@ -59,25 +69,25 @@ class Auth
             'code' => $code,
         );
 
-        $url = sprintf('%s?%s', self::TOKEN_URL, http_build_query($args));
+        $request = new Browser\Request();
+        return $request
+                        ->setMethod('GET')
+                        ->setUrl(sprintf('%s?%s', self::URL_TOKEN, http_build_query($args)));
+    }
 
-        $curl = curl_init();
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($curl, CURLOPT_URL, $url);
-        $result = curl_exec($curl);
-        $error = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        curl_close($curl);
+    public function getPermissions($token)
+    {
+        if(!$token)
+            throw new \InvalidArgumentException('You must provide a token');
 
-        if(!$result)
-            throw new Exception($error);
+        $args = array(
+            'access_token' => $token,
+        );
 
-        $elements = array();
-        parse_str($result, $elements);
-
-        if(!isset($elements['access_token']))
-            throw new Exception('Access Token not Found');
-
-        return $elements['access_token'];
+        $request = new Browser\Request();
+        return $request
+                        ->setMethod('GET')
+                        ->setUrl(sprintf('%s?%s', self::URL_PERMISSIONS, http_build_query($args)));
     }
 
 }
