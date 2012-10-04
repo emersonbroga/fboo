@@ -8,10 +8,33 @@ class Album
     const URL_ALBUMS = 'https://graph.facebook.com/%s/albums';
 
     private $user;
+    private $id;
 
     public function __construct(User $user)
     {
         $this->user = $user;
+    }
+
+    public function getUser()
+    {
+        return $this->user;
+    }
+
+    public function setUser($user)
+    {
+        $this->user = $user;
+        return $this;
+    }
+
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    public function setId($id)
+    {
+        $this->id = $id;
+        return $this;
     }
 
     public function create($name, $description)

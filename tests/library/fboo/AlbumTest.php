@@ -53,6 +53,24 @@ class AlbumTest extends \PHPUnit_Framework_TestCase
         $album->create($name, $description);
     }
 
+    public function testSettersAngGetters()
+    {
+        $user = new User('abCdEfGhij', '0123456789');
+        $anotherUser = new User('kLmNoPq');
+
+        $album = new Album($user);
+        $this->assertEquals($user, $album->getUser());
+        $this->assertEquals(null, $album->getId());
+
+        $album = $album->setId('1234567890');
+        $this->assertInstanceOf('fboo\Album', $album);
+        $this->assertEquals('1234567890', $album->getId());
+
+        $album = $album->setUser($anotherUser);
+        $this->assertInstanceOf('fboo\Album', $album);
+        $this->assertEquals($anotherUser, $album->getUser());
+    }
+
     public function providerForTestInvalidCreate()
     {
         return array(
