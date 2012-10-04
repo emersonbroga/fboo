@@ -20,7 +20,7 @@ class Auth
             throw new \InvalidArgumentException('You must provide a Secret');
 
         if(!ctype_digit($appId))
-            throw new \InvalidArgumentException('You must provide a valid ID');
+            throw new \InvalidArgumentException('You must provide a valid Id');
 
         if(!ctype_xdigit($appSecret))
             throw new \InvalidArgumentException('You must provide a valid Secret');
