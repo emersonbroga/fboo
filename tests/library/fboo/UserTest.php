@@ -68,4 +68,41 @@ class UserTest extends \PHPUnit_Framework_TestCase
             array(false, false),
         );
     }
+    
+    public function testGetInfo()
+    {
+    	$user = new User('abCdEfGhij', '0123456789');
+		$toRequest = $user->getInfo();
+		
+		$args = array(
+            'q' => 'SELECT uid,name FROM user WHERE uid = 0123456789',
+		 	'access_token' => 'abCdEfGhij'
+        );
+        $url = sprintf('%s?%s', User::URL_FQL, http_build_query($args));
+	 	
+	 	$this->assertInstanceOf('\stdClass', $toRequest);
+        $this->assertObjectHasAttribute('method', $toRequest);
+        $this->assertObjectHasAttribute('url', $toRequest);
+        $this->assertEquals('get', $toRequest->method);
+        $this->assertEquals($url, $toRequest->url);
+    
+    
+    	$user = new User('abCdEfGhij');
+		$toRequest = $user->getInfo();
+		
+		$args = array(
+            'q' => 'SELECT uid,name FROM user WHERE uid = me()',
+		 	'access_token' => 'abCdEfGhij'
+        );
+        $url = sprintf('%s?%s', User::URL_FQL, http_build_query($args));
+	 	
+	 	$this->assertInstanceOf('\stdClass', $toRequest);
+        $this->assertObjectHasAttribute('method', $toRequest);
+        $this->assertObjectHasAttribute('url', $toRequest);
+        $this->assertEquals('get', $toRequest->method);
+        $this->assertEquals($url, $toRequest->url);
+    
+    }
+    
+    
 }
