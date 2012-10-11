@@ -80,8 +80,8 @@ class User
             'q' => sprintf('SELECT %s FROM user WHERE uid = %s',$fields,$userId),
 		 	'access_token' => $this->getToken()
         );
-        
-	 	return (object) array(
+
+        return (object) array(
             'method' => 'get',
             'url' => sprintf('%s?%s', self::URL_FQL, http_build_query($args))
         );
